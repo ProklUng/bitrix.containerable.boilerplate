@@ -44,7 +44,7 @@ class CompilerContainer
     public function __construct(string $projectRoot)
     {
         $this->projectRoot = $projectRoot;
-        $filesystem = new Filesystem();
+        $this->filesystem = new Filesystem();
     }
 
     /**
