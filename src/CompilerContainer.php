@@ -32,6 +32,11 @@ class CompilerContainer
     private $moduleId = '';
 
     /**
+     * @var Filesystem $filesystem Файловая система.
+     */
+    private $filesystem;
+
+    /**
      * CompilerContainer constructor.
      *
      * @param string $projectRoot DOCUMENT_ROOT.
@@ -39,6 +44,7 @@ class CompilerContainer
     public function __construct(string $projectRoot)
     {
         $this->projectRoot = $projectRoot;
+        $filesystem = new Filesystem();
     }
 
     /**
@@ -53,7 +59,7 @@ class CompilerContainer
         $meta = $configFile . '.meta';
 
         // Не существует мета-файл = конфиг потенциально не свежий.
-        if (!@file_exists($this->projectRoot . $meta)) {
+        if (!$this->filesystem->exists($this->projectRoot . $meta)) {
             return false;
         }
 
@@ -86,18 +92,6 @@ class CompilerContainer
     }
 
     /**
-     * Удалить дамп контейнера.
-     *
-     * @param string $cacheDirectory Директория, где лежит дамп контейнера.
-     *
-     * @return void
-     */
-    public function deleteDumpContainer(string $cacheDirectory) : void
-    {
-        $this->rrmdir($cacheDirectory);
-    }
-
-    /**
      * @param ContainerBuilder $container            Контейнер.
      * @param string           $cacheDirectory       Директория кэша.
      * @param string           $filename             Файл кэша.
@@ -117,6 +111,11 @@ class CompilerContainer
     ) : Container {
         $this->createCacheDirectory($cacheDirectory);
 
+        // По clear_cache перестраивать контейнер.
+        if (isset($_GET['clear_cache']) && strtolower($_GET['clear_cache']) === 'y') {
+            $this->filesystem->remove($cacheDirectory);
+        }
+
         $compiledContainerFile = $cacheDirectory . '/' . $filename;
 
         $containerConfigCache = new ConfigCache($compiledContainerFile, true);
@@ -134,7 +133,7 @@ class CompilerContainer
 
         foreach ($configsBag as $configFile) {
             // Если конфиг-файл изменился - пересобрать дамп контейнера.
-            if (file_exists($this->projectRoot . $configFile) && !$this->isConfigFresh($configFile)) {
+            if ($this->filesystem->exists($this->projectRoot . $configFile) && !$this->isConfigFresh($configFile)) {
                 $this->createConfigMeta($configFile);
                 $hasContainerFresh = false;
             }
@@ -191,6 +190,20 @@ class CompilerContainer
     }
 
     /**
+     * Задать ID модуля.
+     *
+     * @param string $moduleId
+     *
+     * @return CompilerContainer
+     */
+    public function setModuleId(string $moduleId): self
+    {
+        $this->moduleId = $moduleId;
+
+        return $this;
+    }
+
+    /**
      * Если надо создать директорию для компилированного контейнера.
      *
      * @param string $dir Директория.
@@ -199,10 +212,8 @@ class CompilerContainer
      */
     private function createCacheDirectory(string $dir) : void
     {
-        $filesystem = new Filesystem();
-
-        if (!$filesystem->exists($dir)) {
-            $filesystem->mkdir($dir);
+        if (!$this->filesystem->exists($dir)) {
+            $this->filesystem->mkdir($dir);
         }
     }
 
@@ -292,44 +303,6 @@ class CompilerContainer
     }
 
     /**
-     * Рекурсивно удалить папки и файлы в них.
-     *
-     * @param string $dir Директория.
-     *
-     * @return void
-     */
-    private function rrmdir(string $dir) : void
-    {
-        if (is_dir($dir)) {
-            $objects = scandir($dir);
-            foreach ($objects as $object) {
-                if ($object !== '.' && $object !== '..') {
-                    if (is_dir($dir.DIRECTORY_SEPARATOR.$object) && !is_link($dir.'/'.$object)) {
-                        $this->rrmdir($dir.DIRECTORY_SEPARATOR.$object);
-                    } else {
-                        unlink($dir.DIRECTORY_SEPARATOR.$object);
-                    }
-                }
-            }
-            rmdir($dir);
-        }
-    }
-
-    /**
-     * Задать ID модуля.
-     *
-     * @param string $moduleId
-     *
-     * @return CompilerContainer
-     */
-    public function setModuleId(string $moduleId): CompilerContainer
-    {
-        $this->moduleId = $moduleId;
-
-        return $this;
-    }
-
-    /**
      * Определить, где лежит модуль - в local или bitrix.
      *
      * @param string $moduleId   ID модуля.
@@ -341,15 +314,14 @@ class CompilerContainer
     {
         $hasLocalDir = is_dir($this->projectRoot . '/local/modules/' . $moduleId);
 
-        if ($hasLocalDir && @file_exists($this->projectRoot . '/local/modules/' . $moduleId)) {
+        if ($hasLocalDir && $this->filesystem->exists($this->projectRoot . '/local/modules/' . $moduleId)) {
             return '/local/modules/' . $this->projectRoot;
         }
-        elseif (@file_exists($this->projectRoot. $baseFolder . '/' . $moduleId))
+        elseif ($this->filesystem->exists($this->projectRoot. $baseFolder . '/' . $moduleId))
         {
             return $baseFolder . '/' . $moduleId;
         }
 
         return '';
     }
-
 }
