@@ -10,7 +10,7 @@ composer.json:
     "repositories": [
         {
             "type": "git",
-            "url": "https://github.com/proklung/proklung/bitrix.containerable.boilerplate"
+            "url": "https://github.com/proklung/bitrix.containerable.boilerplate"
         }
     ]
 ```
