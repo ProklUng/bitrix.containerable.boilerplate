@@ -1,0 +1,7 @@
+/.idea/
+/.vscode/
+/*/
+!/tests/
+!/src/
+/vendor/
+*.cache
