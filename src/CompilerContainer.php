@@ -3,7 +3,6 @@
 namespace ProklUng\ContainerBoilerplate;
 
 use InvalidArgumentException;
-use Proklung\ContainerBoilerplate\Resource\FileBitrixSettingsResource;
 use Symfony\Bridge\ProxyManager\LazyProxy\PhpDumper\ProxyDumper;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\DependencyInjection\Container;
@@ -26,6 +25,11 @@ class CompilerContainer
      * @var string $projectRoot DOCUMENT_ROOT.
      */
     private $projectRoot;
+
+    /**
+     * @var string $moduleId ID модуля.
+     */
+    private $moduleId = '';
 
     /**
      * CompilerContainer constructor.
@@ -55,7 +59,7 @@ class CompilerContainer
 
         $content = file_get_contents($this->projectRoot . $meta);
 
-        /** @var FileBitrixSettingsResource $checker */
+        /** @var \ProklUng\ContainerBoilerplate\Resource\FileBitrixSettingsResource $checker */
         $checker = unserialize($content);
         // Кривизна в мета-файле = конфиг потенциально не свежий.
         if ($checker === false) {
@@ -76,7 +80,7 @@ class CompilerContainer
      */
     public function createConfigMeta(string $configFile = '/bitrix/.settings.php') : void
     {
-        $checker = new FileBitrixSettingsResource($this->projectRoot . $configFile);
+        $checker = new \ProklUng\ContainerBoilerplate\Resource\FileBitrixSettingsResource($this->projectRoot . $configFile);
 
         @file_put_contents($this->projectRoot . $configFile . '.meta', serialize($checker));
     }
@@ -122,7 +126,12 @@ class CompilerContainer
 
         $hasContainerFresh = $containerConfigCache->isFresh();
 
-        $configsBag = ['/bitrix/.settings.php', '/bitrix/.settings_extra.php'];
+        $configsBag = [
+            '/bitrix/.settings.php',
+            '/bitrix/.settings_extra.php',
+            $this->locateModuleDir($this->moduleId).'/.settings.php', // Конфиг модуля
+        ];
+
         foreach ($configsBag as $configFile) {
             // Если конфиг-файл изменился - пересобрать дамп контейнера.
             if (file_exists($this->projectRoot . $configFile) && !$this->isConfigFresh($configFile)) {
@@ -305,4 +314,42 @@ class CompilerContainer
             rmdir($dir);
         }
     }
+
+    /**
+     * Задать ID модуля.
+     *
+     * @param string $moduleId
+     *
+     * @return CompilerContainer
+     */
+    public function setModuleId(string $moduleId): CompilerContainer
+    {
+        $this->moduleId = $moduleId;
+
+        return $this;
+    }
+
+    /**
+     * Определить, где лежит модуль - в local или bitrix.
+     *
+     * @param string $moduleId   ID модуля.
+     * @param string $baseFolder Базовая папка.
+     *
+     * @return string
+     */
+    private function locateModuleDir(string $moduleId, $baseFolder = '/bitrix/modules') : string
+    {
+        $hasLocalDir = is_dir($this->projectRoot . '/local/modules/' . $moduleId);
+
+        if ($hasLocalDir && @file_exists($this->projectRoot . '/local/modules/' . $moduleId)) {
+            return '/local/modules/' . $this->projectRoot;
+        }
+        elseif (@file_exists($this->projectRoot. $baseFolder . '/' . $moduleId))
+        {
+            return $baseFolder . '/' . $moduleId;
+        }
+
+        return '';
+    }
+
 }
