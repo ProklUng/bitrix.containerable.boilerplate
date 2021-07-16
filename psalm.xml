@@ -58,22 +58,5 @@
                 <directory name="/"/>
             </errorLevel>
         </UndefinedMagicMethod>
-        <UndefinedFunction>
-            <errorLevel type="suppress">
-                <file name="src/Options/ModuleManager.php"/>
-                <file name="src/Options/ModuleForm.php"/>
-            </errorLevel>
-        </UndefinedFunction>
-        <UndefinedConstant>
-            <errorLevel type="suppress">
-                <file name="src/Options/ModuleManager.php"/>
-                <file name="src/Options/ModuleForm.php"/>
-            </errorLevel>
-        </UndefinedConstant>
-        <UndefinedClass>
-            <errorLevel type="suppress">
-                <file name="src/Options/ModuleForm.php"/>
-            </errorLevel>
-        </UndefinedClass>
       </issueHandlers>
 </psalm>
