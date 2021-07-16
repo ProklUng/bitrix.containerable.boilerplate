@@ -6,7 +6,6 @@
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
     allowStringToStandInForClass="true"
-    allowCoercionFromStringToClassConst="true"
     findUnusedPsalmSuppress="true"
     skipChecksOnUnresolvableIncludes="true"
 >
@@ -53,6 +52,11 @@
                 <directory name="/"/>
             </errorLevel>
         </InvalidThrow>
+        <UnresolvableInclude>
+            <errorLevel type="suppress">
+                <directory name="/"/>
+            </errorLevel>
+        </UnresolvableInclude>
         <UndefinedMagicMethod>
             <errorLevel type="suppress">
                 <directory name="/"/>

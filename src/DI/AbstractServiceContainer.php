@@ -4,6 +4,7 @@ namespace ProklUng\ContainerBoilerplate\DI;
 
 use Closure;
 use Exception;
+use LogicException;
 use ProklUng\ContainerBoilerplate\CompilerContainer;
 use ProklUng\ContainerBoilerplate\Utils\BitrixSettingsDiAdapter;
 use Symfony\Component\DependencyInjection\Container;
@@ -57,7 +58,7 @@ abstract class AbstractServiceContainer
      */
     public function __construct()
     {
-        $this->debug = (bool)$_ENV['DEBUG'] ?? true;
+        $this->debug = !array_key_exists('DEBUG', $_ENV) ? true : (bool)$_ENV['DEBUG'];
         $this->environment = $this->debug ? 'dev' : 'prod';
     }
 
@@ -73,7 +74,7 @@ abstract class AbstractServiceContainer
      * Загрузка всего хозяйства.
      *
      * @return void
-     * @throws Exception
+     * @throws Exception | LogicException
      */
     public function load() : void
     {
@@ -83,6 +84,11 @@ abstract class AbstractServiceContainer
 
         $this->createContainer();
         $compilerContainer = new CompilerContainer($_SERVER['DOCUMENT_ROOT']);
+
+        if (!$this->moduleId) {
+            throw new LogicException('Children of AbstractServiceContainer must define moduleId property.');
+        }
+
         $compilerContainer->setModuleId($this->moduleId);
 
         // Кэшировать контейнер?
@@ -130,9 +136,10 @@ abstract class AbstractServiceContainer
     /**
      * Экземпляр контейнера.
      *
-     * @return Container
+     * @return Container|null
+     * @throws Exception
      */
-    public function getContainer(): Container
+    public function getContainer(): ?Container
     {
         return static::$container;
     }

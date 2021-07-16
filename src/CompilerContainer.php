@@ -185,14 +185,14 @@ class CompilerContainer
         require_once $compiledContainerFile;
 
         $classCompiledContainerName = '\\'.$classCompiledContainerName;
-
+        /** @psalm-suppress LessSpecificReturnStatement */
         return new $classCompiledContainerName();
     }
 
     /**
      * Задать ID модуля.
      *
-     * @param string $moduleId
+     * @param string $moduleId ID модуля.
      *
      * @return CompilerContainer
      */
@@ -218,7 +218,7 @@ class CompilerContainer
     }
 
     /**
-     * Gets the container class.
+     * Класс контейнера.
      *
      * @param string  $env   Окружение.
      * @param boolean $debug Режим отладки.
@@ -234,7 +234,10 @@ class CompilerContainer
 
         if (!preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $class)) {
             throw new InvalidArgumentException(
-                sprintf('The environment "%s" contains invalid characters, it can only contain characters allowed in PHP class names.', $this->environment)
+                sprintf(
+                    'The environment "%s" contains invalid characters, it can only contain characters allowed in PHP class names.',
+                    $env
+                )
             );
         }
 
@@ -260,7 +263,9 @@ class CompilerContainer
         }
 
         $dumper = new PhpDumper($container);
+        /** @psalm-suppress UndefinedClass */
         if (class_exists(\ProxyManager\Configuration::class) && class_exists(ProxyDumper::class)) {
+            /** @psalm-suppress InvalidArgument */
             $dumper->setProxyDumper(new ProxyDumper());
         }
 

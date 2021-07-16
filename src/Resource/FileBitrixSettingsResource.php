@@ -40,7 +40,7 @@ final class FileBitrixSettingsResource implements SelfCheckingResourceInterface
      */
     public function __toString(): string
     {
-        return $this->resource;
+        return (string)$this->resource;
     }
 
     /**
@@ -48,7 +48,7 @@ final class FileBitrixSettingsResource implements SelfCheckingResourceInterface
      */
     public function getResource(): string
     {
-        return $this->resource;
+        return (string)$this->resource;
     }
 
     /**
@@ -56,6 +56,6 @@ final class FileBitrixSettingsResource implements SelfCheckingResourceInterface
      */
     public function isFresh(int $timestamp): bool
     {
-        return false !== @filemtime($this->resource) && $this->timestamp >= $timestamp;
+        return false !== @filemtime((string)$this->resource) && $this->timestamp >= $timestamp;
     }
 }
