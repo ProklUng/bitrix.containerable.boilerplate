@@ -82,14 +82,12 @@ abstract class AbstractServiceContainer
             return;
         }
 
-        $this->createContainer();
-        $compilerContainer = new CompilerContainer($_SERVER['DOCUMENT_ROOT']);
-
         if (!$this->moduleId) {
             throw new LogicException('Children of AbstractServiceContainer must define moduleId property.');
         }
 
-        $compilerContainer->setModuleId($this->moduleId);
+        $this->createContainer();
+        $compilerContainer = new CompilerContainer($_SERVER['DOCUMENT_ROOT'], $this->moduleId);
 
         // Кэшировать контейнер?
         if (!in_array($this->environment, $this->parameters['compile_container_envs'], true)) {

@@ -3,6 +3,7 @@
 namespace ProklUng\ContainerBoilerplate;
 
 use InvalidArgumentException;
+use ProklUng\ContainerBoilerplate\Resource\FileBitrixSettingsResource;
 use Symfony\Bridge\ProxyManager\LazyProxy\PhpDumper\ProxyDumper;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\DependencyInjection\Container;
@@ -40,10 +41,13 @@ class CompilerContainer
      * CompilerContainer constructor.
      *
      * @param string $projectRoot DOCUMENT_ROOT.
+     * @param string $moduleId    ID модуля.
      */
-    public function __construct(string $projectRoot)
+    public function __construct(string $projectRoot, string $moduleId)
     {
         $this->projectRoot = $projectRoot;
+        $this->moduleId = $moduleId;
+
         $this->filesystem = new Filesystem();
     }
 
@@ -65,7 +69,7 @@ class CompilerContainer
 
         $content = file_get_contents($this->projectRoot . $meta);
 
-        /** @var \ProklUng\ContainerBoilerplate\Resource\FileBitrixSettingsResource $checker */
+        /** @var FileBitrixSettingsResource $checker */
         $checker = unserialize($content);
         // Кривизна в мета-файле = конфиг потенциально не свежий.
         if ($checker === false) {
@@ -86,7 +90,7 @@ class CompilerContainer
      */
     public function createConfigMeta(string $configFile = '/bitrix/.settings.php') : void
     {
-        $checker = new \ProklUng\ContainerBoilerplate\Resource\FileBitrixSettingsResource($this->projectRoot . $configFile);
+        $checker = new FileBitrixSettingsResource($this->projectRoot . $configFile);
 
         @file_put_contents($this->projectRoot . $configFile . '.meta', serialize($checker));
     }
@@ -187,20 +191,6 @@ class CompilerContainer
         $classCompiledContainerName = '\\'.$classCompiledContainerName;
         /** @psalm-suppress LessSpecificReturnStatement */
         return new $classCompiledContainerName();
-    }
-
-    /**
-     * Задать ID модуля.
-     *
-     * @param string $moduleId ID модуля.
-     *
-     * @return CompilerContainer
-     */
-    public function setModuleId(string $moduleId): self
-    {
-        $this->moduleId = $moduleId;
-
-        return $this;
     }
 
     /**
