@@ -68,7 +68,7 @@ abstract class AbstractServiceContainer
      * @return void
      * @throws Exception
      */
-    abstract  public function initContainer() : void;
+    abstract public function initContainer() : void;
 
     /**
      * Загрузка всего хозяйства.
@@ -150,13 +150,9 @@ abstract class AbstractServiceContainer
      * @return mixed
      * @throws Exception
      */
-    public function get(string $serviceId)
+    public static function get(string $serviceId)
     {
-        if (static::$container === null) {
-            $this->load();
-        }
-
-        return static::$container->get($serviceId);
+        return static::boot()->get($serviceId);
     }
 
     /**
@@ -167,13 +163,9 @@ abstract class AbstractServiceContainer
      * @return boolean
      * @throws Exception
      */
-    public function has(string $serviceId) : bool
+    public static function has(string $serviceId) : bool
     {
-        if (static::$container === null) {
-            $this->load();
-        }
-
-        return static::$container->has($serviceId);
+        return static::boot()->has($serviceId);
     }
 
     /**
@@ -184,13 +176,9 @@ abstract class AbstractServiceContainer
      * @return mixed
      * @throws Exception
      */
-    public function getParameter(string $param)
+    public static function getParameter(string $param)
     {
-        if (static::$container === null) {
-            $this->load();
-        }
-
-        return static::$container->getParameter($param);
+        return static::boot()->getParameter($param);
     }
 
     /**
@@ -201,13 +189,9 @@ abstract class AbstractServiceContainer
      * @return mixed
      * @throws Exception
      */
-    public function hasParameter(string $param)
+    public static function hasParameter(string $param)
     {
-        if (static::$container === null) {
-            $this->load();
-        }
-
-        return static::$container->hasParameter($param);
+        return static::boot()->hasParameter($param);
     }
 
     /**
