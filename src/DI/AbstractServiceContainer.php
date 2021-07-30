@@ -143,6 +143,74 @@ abstract class AbstractServiceContainer
     }
 
     /**
+     * Фасад над методом get контейнера.
+     *
+     * @param string $serviceId ID сервиса.
+     *
+     * @return mixed
+     * @throws Exception
+     */
+    public function get(string $serviceId)
+    {
+        if (static::$container === null) {
+            $this->load();
+        }
+
+        return static::$container->get($serviceId);
+    }
+
+    /**
+     * Фасад над методом has контейнера.
+     *
+     * @param string $serviceId ID сервиса.
+     *
+     * @return boolean
+     * @throws Exception
+     */
+    public function has(string $serviceId) : bool
+    {
+        if (static::$container === null) {
+            $this->load();
+        }
+
+        return static::$container->has($serviceId);
+    }
+
+    /**
+     * Фасад над методом getParameter контейнера.
+     *
+     * @param string $param Параметр.
+     *
+     * @return mixed
+     * @throws Exception
+     */
+    public function getParameter(string $param)
+    {
+        if (static::$container === null) {
+            $this->load();
+        }
+
+        return static::$container->getParameter($param);
+    }
+
+    /**
+     * Фасад над методом hasParameter контейнера.
+     *
+     * @param string $param Параметр.
+     *
+     * @return mixed
+     * @throws Exception
+     */
+    public function hasParameter(string $param)
+    {
+        if (static::$container === null) {
+            $this->load();
+        }
+
+        return static::$container->hasParameter($param);
+    }
+
+    /**
      * Создать пустой экземпляр контейнера.
      *
      * @return void
