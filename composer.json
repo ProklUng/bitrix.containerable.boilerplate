@@ -14,7 +14,8 @@
         }
     ],
     "autoload": {
-        "psr-4": {"ProklUng\\ContainerBoilerplate\\": "src" }
+        "psr-4": {"ProklUng\\ContainerBoilerplate\\": "src" },
+        "files": ["functions/helpers.php"]
     },
     "autoload-dev": {
         "psr-4": {"ProklUng\\ContainerBoilerplate\\Tests\\": "tests" }
