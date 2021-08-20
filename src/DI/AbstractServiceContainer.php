@@ -207,5 +207,12 @@ abstract class AbstractServiceContainer
         $adapter->importParameters(static::$container, $this->config);
         $adapter->importParameters(static::$container, $this->parameters);
         $adapter->importServices(static::$container, $this->services);
+
+        static::$container->setParameter('kernel.debug', $this->debug);
+        static::$container->setParameter('kernel.environment', $this->debug ? 'dev' : 'prod');
+        static::$container->setParameter('kernel.project_dir', $_SERVER['DOCUMENT_ROOT']);
+        static::$container->setParameter('kernel.cache_dir', $_SERVER['DOCUMENT_ROOT'] . $this->parameters['cache_path']);
+        static::$container->setParameter('kernel.build_dir', $_SERVER['DOCUMENT_ROOT'] . $this->parameters['cache_path']);
+        static::$container->setParameter('kernel.charset', 'UTF-8');
     }
 }
