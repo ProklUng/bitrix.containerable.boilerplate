@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 class LoaderBundles
 {
     /**
-     * @var array $bundles
+     * @var array $bundles Инстанцированные бандлы.
      */
     private $bundles = [];
 
@@ -67,6 +67,32 @@ class LoaderBundles
     public function fromArray(array $config) : array
     {
         return $this->loadBundles($config);
+    }
+
+    /**
+     * Мета-данные бандлов.
+     *
+     * @return array[]
+     *
+     * @since 13.11.2020
+     */
+    private function getBundlesMetaData() : array
+    {
+        $bundles = [];
+        $bundlesMetadata = [];
+
+        foreach ($this->bundles as $name => $bundle) {
+            $bundles[$name] = get_class($bundle);
+            $bundlesMetadata[$name] = [
+                'path' => $bundle->getPath(),
+                'namespace' => $bundle->getNamespace(),
+            ];
+        }
+
+        return [
+            'kernel.bundles' => $bundles,
+            'kernel.bundles_metadata' => $bundlesMetadata
+        ];
     }
 
     /**
@@ -135,7 +161,18 @@ class LoaderBundles
                 $bundle->build($this->containerBuilder);
             }
 
+            $this->bundles[$bundle->getName()] = $bundle;
             $resultBundles[static::class][$bundle->getName()] = $bundle;
+        }
+
+        $this->containerBuilder->setParameter('kernel.bundles', []);
+        $this->containerBuilder->setParameter('kernel.bundles_metadata', []);
+
+        if (count($resultBundles) > 0) {
+            $bundlesMetaData = $this->getBundlesMetaData();
+
+            $this->containerBuilder->setParameter('kernel.bundles', $bundlesMetaData['kernel.bundles']);
+            $this->containerBuilder->setParameter('kernel.bundles_metadata', $bundlesMetaData['kernel.bundles_metadata']);
         }
 
         return $resultBundles;
